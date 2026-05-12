@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Emergency Queue System | DSA Priority Queue</title>
+    <meta name="description" content="Interactive Hospital Emergency Queue System demonstrating Priority Queue (Min-Heap) Data Structure with real-time triage management.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Ambient background particles -->
+    <div class="ambient-bg" id="ambientBg"></div>
+
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="header-inner">
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                        <rect x="11" y="4" width="6" height="20" rx="2" fill="currentColor"/>
+                        <rect x="4" y="11" width="20" height="6" rx="2" fill="currentColor"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="logo-title">Emergency Queue System</h1>
+                    <p class="logo-subtitle">Priority Queue (Min-Heap) &bull; DSA Project</p>
+                </div>
+            </div>
+            <div class="header-stats">
+                <div class="stat-chip" id="statTotal">
+                    <span class="stat-label">Queue Size</span>
+                    <span class="stat-value" id="totalPatients">0</span>
+                </div>
+                <div class="stat-chip stat-chip-critical" id="statCritical">
+                    <span class="stat-label">Critical</span>
+                    <span class="stat-value" id="criticalCount">0</span>
+                </div>
+                <div class="stat-chip stat-chip-active">
+                    <span class="stat-label">Treated</span>
+                    <span class="stat-value" id="treatedCount">0</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Left Panel: Controls -->
+        <section class="panel panel-controls" id="controlsPanel">
+            <div class="panel-header">
+                <h2 class="panel-title">
+                    <span class="panel-icon">👤</span>
+                    Register Patient
+                </h2>
+            </div>
+            <form class="patient-form" id="patientForm">
+                <div class="form-group">
+                    <label for="patientName" class="form-label">Patient Name</label>
+                    <input type="text" id="patientName" class="form-input" placeholder="Enter patient name..." required autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="patientAge" class="form-label">Age</label>
+                    <input type="number" id="patientAge" class="form-input" placeholder="Age" min="0" max="150" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Triage Level</label>
+                    <div class="triage-grid" id="triageGrid">
+                        <label class="triage-option triage-1" data-level="1">
+                            <input type="radio" name="triage" value="1">
+                            <div class="triage-card">
+                                <span class="triage-badge">P1</span>
+                                <span class="triage-name">Resuscitation</span>
+                                <span class="triage-desc">Life-threatening</span>
+                            </div>
+                        </label>
+                        <label class="triage-option triage-2" data-level="2">
+                            <input type="radio" name="triage" value="2">
+                            <div class="triage-card">
+                                <span class="triage-badge">P2</span>
+                                <span class="triage-name">Emergency</span>
+                                <span class="triage-desc">Critical condition</span>
+                            </div>
+                        </label>
+                        <label class="triage-option triage-3" data-level="3">
+                            <input type="radio" name="triage" value="3" checked>
+                            <div class="triage-card">
+                                <span class="triage-badge">P3</span>
+                                <span class="triage-name">Urgent</span>
+                                <span class="triage-desc">Serious but stable</span>
+                            </div>
+                        </label>
+                        <label class="triage-option triage-4" data-level="4">
+                            <input type="radio" name="triage" value="4">
+                            <div class="triage-card">
+                                <span class="triage-badge">P4</span>
+                                <span class="triage-name">Semi-Urgent</span>
+                                <span class="triage-desc">Less urgent</span>
+                            </div>
+                        </label>
+                        <label class="triage-option triage-5" data-level="5">
+                            <input type="radio" name="triage" value="5">
+                            <div class="triage-card">
+                                <span class="triage-badge">P5</span>
+                                <span class="triage-name">Non-Urgent</span>
+                                <span class="triage-desc">Minor issue</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="patientCondition" class="form-label">Condition / Symptoms</label>
+                    <input type="text" id="patientCondition" class="form-input" placeholder="e.g., Chest pain, fracture..." autocomplete="off">
+                </div>
+                <button type="submit" class="btn btn-primary" id="addPatientBtn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    Add to Queue
+                </button>
+            </form>
+
+            <div class="action-buttons">
+                <button class="btn btn-treat" id="treatNextBtn" disabled>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Treat Next Patient
+                </button>
+                <button class="btn btn-secondary" id="loadSampleBtn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    Load Sample Data
+                </button>
+                <button class="btn btn-danger" id="clearAllBtn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                    Clear All
+                </button>
+            </div>
+
+            <!-- DSA Info Card -->
+            <div class="info-card" id="dsaInfoCard">
+                <div class="info-card-header" id="dsaInfoToggle">
+                    <h3>📚 How It Works — Min-Heap Priority Queue</h3>
+                    <svg class="info-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </div>
+                <div class="info-card-body" id="dsaInfoBody">
+                    <div class="info-section">
+                        <h4>🏗️ Data Structure</h4>
+                        <p>A <strong>Min-Heap</strong> is a complete binary tree where every parent node has a value ≤ its children. We use it to always extract the <em>highest-priority</em> (lowest triage number) patient in <code>O(log n)</code> time.</p>
+                    </div>
+                    <div class="info-section">
+                        <h4>⚙️ Key Operations</h4>
+                        <table class="info-table">
+                            <thead><tr><th>Operation</th><th>Complexity</th><th>Description</th></tr></thead>
+                            <tbody>
+                                <tr><td><code>insert()</code></td><td>O(log n)</td><td>Add patient → bubble up</td></tr>
+                                <tr><td><code>extractMin()</code></td><td>O(log n)</td><td>Remove top → heapify down</td></tr>
+                                <tr><td><code>peek()</code></td><td>O(1)</td><td>View next patient</td></tr>
+                                <tr><td><code>size()</code></td><td>O(1)</td><td>Current queue length</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="info-section">
+                        <h4>🔄 Heap Property Maintenance</h4>
+                        <p><strong>Bubble Up:</strong> After insertion, compare with parent and swap if smaller — repeat until heap property is restored.</p>
+                        <p><strong>Heapify Down:</strong> After extraction, move last element to root, then swap with smallest child — repeat until valid.</p>
+                    </div>
+                    <div class="info-section">
+                        <h4>🏥 Triage Levels (Priority)</h4>
+                        <div class="triage-legend">
+                            <span class="legend-item p1">P1 — Resuscitation</span>
+                            <span class="legend-item p2">P2 — Emergency</span>
+                            <span class="legend-item p3">P3 — Urgent</span>
+                            <span class="legend-item p4">P4 — Semi-Urgent</span>
+                            <span class="legend-item p5">P5 — Non-Urgent</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Center Panel: Heap Visualization -->
+        <section class="panel panel-visualization" id="vizPanel">
+            <div class="panel-header">
+                <h2 class="panel-title">
+                    <span class="panel-icon">🌳</span>
+                    Heap Visualization
+                </h2>
+                <div class="viz-tabs">
+                    <button class="viz-tab active" data-view="tree" id="viewTree">Tree View</button>
+                    <button class="viz-tab" data-view="array" id="viewArray">Array View</button>
+                </div>
+            </div>
+
+            <!-- Tree View -->
+            <div class="viz-container" id="treeView">
+                <div class="tree-canvas" id="treeCanvas">
+                    <svg class="tree-lines" id="treeLines"></svg>
+                    <div class="tree-nodes" id="treeNodes"></div>
+                </div>
+                <div class="viz-empty" id="treeEmpty">
+                    <div class="empty-icon">🏥</div>
+                    <h3>No patients in queue</h3>
+                    <p>Add a patient or load sample data to see the heap visualization</p>
+                </div>
+            </div>
+
+            <!-- Array View -->
+            <div class="viz-container hidden" id="arrayView">
+                <div class="array-canvas" id="arrayCanvas"></div>
+                <div class="viz-empty" id="arrayEmpty">
+                    <div class="empty-icon">📊</div>
+                    <h3>No patients in queue</h3>
+                    <p>Add a patient to see the array representation</p>
+                </div>
+            </div>
+
+            <!-- Operation Log -->
+            <div class="operation-log" id="operationLog">
+                <div class="log-header">
+                    <h3>📋 Operation Log</h3>
+                    <button class="log-clear-btn" id="clearLogBtn" title="Clear log">✕</button>
+                </div>
+                <div class="log-entries" id="logEntries">
+                    <div class="log-entry log-info">
+                        <span class="log-time">--:--:--</span>
+                        <span class="log-msg">System initialized. Ready to accept patients.</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Panel: Queue -->
+        <section class="panel panel-queue" id="queuePanel">
+            <div class="panel-header">
+                <h2 class="panel-title">
+                    <span class="panel-icon">📋</span>
+                    Patient Queue
+                </h2>
+                <span class="queue-count-badge" id="queueCountBadge">0</span>
+            </div>
+
+            <!-- Next patient highlight -->
+            <div class="next-patient-card hidden" id="nextPatientCard">
+                <div class="next-label">NEXT TO TREAT</div>
+                <div class="next-patient-info" id="nextPatientInfo"></div>
+            </div>
+
+            <div class="queue-list" id="queueList">
+                <div class="queue-empty" id="queueEmpty">
+                    <div class="empty-icon">🩺</div>
+                    <p>Queue is empty</p>
+                </div>
+            </div>
+
+            <!-- Treated Patients -->
+            <div class="treated-section" id="treatedSection">
+                <div class="treated-header" id="treatedToggle">
+                    <h3>✅ Treated Patients</h3>
+                    <svg class="info-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </div>
+                <div class="treated-list hidden" id="treatedList"></div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="heap.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
